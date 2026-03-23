@@ -3,7 +3,7 @@
 import { FormEvent, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
-import Logo from "@/components/logo";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
