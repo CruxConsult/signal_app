@@ -40,49 +40,49 @@ export default function InteractionHistorySection({
                 key={interaction.id}
                 className="rounded-[20px] border border-slate-200/60 bg-white/60 shadow-[0_2px_12px_rgba(15,23,42,0.04)]"
               >
-                <div className="flex items-start justify-between gap-4 p-5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenInteractions((prev) => ({
-                        ...prev,
-                        [interaction.id]: !prev[interaction.id],
-                      }))
-                    }
-                    className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
-                  >
-                    <div className="min-w-0">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">
-                          {interaction.title || "Untitled interaction"}
-                        </p>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                          {interaction.source_type}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          {formatDate(interaction.interaction_date)}
-                        </span>
-                      </div>
-
-                      {!isOpen && (
-                        <p className="line-clamp-2 text-[15px] leading-6 text-slate-600">
-                          {interaction.content}
-                        </p>
-                      )}
+                <div className="flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-slate-900">
+                        {interaction.title || "Untitled interaction"}
+                      </p>
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                        {interaction.source_type}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {formatDate(interaction.interaction_date)}
+                      </span>
                     </div>
 
-                    <span className="shrink-0 text-sm text-slate-500">
-                      {isOpen ? "Hide" : "Show"}
-                    </span>
-                  </button>
+                    {!isOpen && (
+                      <p className="line-clamp-2 text-[15px] leading-6 text-slate-600">
+                        {interaction.content}
+                      </p>
+                    )}
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onDeleteInteraction(interaction)}
-                    className="shrink-0 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex shrink-0 flex-col gap-2 md:items-end">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenInteractions((prev) => ({
+                          ...prev,
+                          [interaction.id]: !prev[interaction.id],
+                        }))
+                      }
+                      className="min-w-[140px] rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-200"
+                    >
+                      {isOpen ? "Hide" : "Show"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onDeleteInteraction(interaction)}
+                      className="min-w-[140px] rounded-2xl bg-rose-100 px-4 py-2 text-sm font-medium text-rose-700 shadow-sm transition hover:bg-rose-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
 
                 {isOpen && (

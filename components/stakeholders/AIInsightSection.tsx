@@ -20,22 +20,26 @@ export default function AIInsightSection({
       title="AI insight"
       defaultOpen={true}
       rightContent={
-        <button
-          type="button"
-          onClick={onGenerateInsight}
-          className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_6px_18px_rgba(15,23,42,0.16)] transition hover:bg-slate-700"
-        >
-          {insightLoading ? "Generating..." : "Generate insight"}
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onGenerateInsight}
+            disabled={insightLoading}
+            className="min-w-[140px] rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          >
+            {insightLoading ? "Generating..." : "Generate insight"}
+          </button>
+        </div>
       }
     >
       {insightError && (
-        <p className="mb-4 text-sm text-red-600">{insightError}</p>
+        <p className="mb-4 text-sm text-rose-600">{insightError}</p>
       )}
 
       {!insight && !insightError && (
         <p className="text-[15px] leading-6 text-slate-600">
-          Generate an AI summary and interpretation based on this stakeholder’s interactions.
+          Generate an AI summary and interpretation based on this stakeholder’s
+          interactions.
         </p>
       )}
 

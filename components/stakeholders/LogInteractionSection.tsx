@@ -82,12 +82,15 @@ export default function LogInteractionSection({
           />
         </div>
 
-        <button
-          type="submit"
-          className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_6px_18px_rgba(15,23,42,0.16)] transition hover:bg-slate-700"
-        >
-          Save interaction
-        </button>
+        {/* ACTION */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="min-w-[140px] rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+          >
+            Save interaction
+          </button>
+        </div>
       </form>
     </CollapsibleSection>
   );
