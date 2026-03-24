@@ -10,25 +10,25 @@ export default function AppHeader({
   showLogout?: boolean;
 }) {
   return (
-    <header className="border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
+    <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
-        
-        {/* LEFT: BRAND */}
-        <Link href="/dashboard" className="inline-flex items-center gap-3">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-3 transition hover:opacity-90"
+        >
           <Image
-            src="/icon.png"
+            src="/signal-mark-white.png"
             alt="Signal"
-            width={28}
-            height={28}
-            className="rounded-md"
+            width={36}
+            height={36}
+            className="rounded-xl"
             priority
           />
-          <span className="text-[16px] font-semibold tracking-[-0.01em] text-slate-900">
+          <span className="text-[20px] font-semibold tracking-[-0.02em] text-slate-900">
             Signal
           </span>
         </Link>
 
-        {/* RIGHT */}
         {showLogout ? <LogoutButton /> : <div />}
       </div>
     </header>
