@@ -432,15 +432,14 @@ export default function StakeholderDetailPage({
 
           <div className="mt-6 rounded-[28px] border border-white/60 bg-white/80 p-8 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
             <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="mb-2 text-sm font-medium text-slate-500">
-                  Signal
-                </div>
-                <h1 className="text-4xl font-semibold tracking-[-0.03em] text-slate-900">
-                  {stakeholder.name}
-                </h1>
-                <p className="mt-2 text-[15px] text-slate-500">{stakeholder.role}</p>
-              </div>
+            <div>
+  <h1 className="text-4xl font-semibold tracking-[-0.03em] text-slate-900">
+    {stakeholder.name}
+  </h1>
+  <p className="mt-2 text-[15px] text-slate-500">
+    {stakeholder.role}
+  </p>
+</div>
 
               <div className={`rounded-full border px-4 py-2 text-sm font-medium ${trend.tone}`}>
                 Trend: {trend.label}
