@@ -7,14 +7,13 @@ export default function Logo() {
       aria-label="Signal"
     >
       <Image
-        src="/icon.png"
+        src="/signal-mark-navy.png"
         alt="Signal logo"
-        width={30}
-        height={30}
-        className="shrink-0 rounded-lg"
+        width={32}
+        height={32}
+        className="h-8 w-8 shrink-0 object-contain"
         priority
       />
-
       <span className="text-[28px] font-semibold tracking-[-0.02em] text-[#0C1E33]">
         Signal
       </span>
