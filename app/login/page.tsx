@@ -49,9 +49,14 @@ export default function LoginPage() {
         {/* Left side / brand */}
         <section className="flex items-center px-6 py-12 sm:px-10 lg:px-16 xl:px-20">
           <div className="mx-auto w-full max-w-3xl lg:mx-0">
-            <div className="mb-8">
-              <Logo />
-            </div>
+          <div className="mb-8">
+  <div
+    className="text-5xl leading-none tracking-[-0.03em] text-[#F9FAFB] sm:text-6xl lg:text-7xl"
+    style={{ fontFamily: '"Playfair Display", serif' }}
+  >
+    Crux
+  </div>
+</div>
 
             <div className="mt-8 border-l border-[rgba(244,196,48,0.9)] pl-5 sm:pl-6">
               <h1 className="text-3xl leading-[1.15] tracking-[-0.02em] text-[#F9FAFB] sm:text-4xl lg:text-5xl">
