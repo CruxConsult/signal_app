@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+export const metadata = {
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Signal",
