@@ -429,7 +429,7 @@ export default function DashboardPage() {
           role,
           status,
           summary,
-          user_id: user?.id,
+          user_id: user.id,
           reports_to_stakeholder_id: superiorId,
           is_external_superior: false,
           is_client_visible: isClientVisible,
