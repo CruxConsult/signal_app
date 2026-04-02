@@ -450,24 +450,24 @@ export default function DashboardPage() {
 
   async function handleAddOrUpdateStakeholder(e: React.FormEvent) {
     e.preventDefault();
-
+  
     if (!name || !role || !status) return;
-
+  
     const {
       data: { session },
     } = await supabase.auth.getSession();
-
+  
     if (!session) {
       router.push("/login");
       return;
     }
-
+  
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
+  
     const superiorId = await findOrCreateSuperior(reportsToName, user?.id || "");
-
+  
     if (editingId) {
       const { error } = await supabase
         .from("Stakeholders")
@@ -477,36 +477,39 @@ export default function DashboardPage() {
           status,
           summary,
           reports_to_stakeholder_id: superiorId,
+          is_client_visible: isClientVisible,
+          client_sentiment: clientSentiment || null,
+          sentiment_trend: sentimentTrend || null,
         })
         .eq("id", editingId)
         .eq("user_id", user?.id);
-
+  
       if (error) {
         console.error("Update stakeholder error:", error);
         return;
       }
     } else {
-      const { error } = await supabase
-  .from("Stakeholders")
-  .update({
-    name,
-    role,
-    status,
-    summary,
-    reports_to_stakeholder_id: superiorId,
-    is_client_visible: isClientVisible,
-    client_sentiment: clientSentiment || null,
-    sentiment_trend: sentimentTrend || null,
-  })
-  .eq("id", editingId)
-  .eq("user_id", user?.id);
-
+      const { error } = await supabase.from("Stakeholders").insert([
+        {
+          name,
+          role,
+          status,
+          summary,
+          user_id: user?.id,
+          reports_to_stakeholder_id: superiorId,
+          is_external_superior: false,
+          is_client_visible: isClientVisible,
+          client_sentiment: clientSentiment || null,
+          sentiment_trend: sentimentTrend || null,
+        },
+      ]);
+  
       if (error) {
         console.error("Add stakeholder error:", error);
         return;
       }
     }
-
+  
     resetForm();
     await loadData();
   }
