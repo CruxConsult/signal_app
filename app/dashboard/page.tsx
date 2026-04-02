@@ -481,8 +481,6 @@ export default function DashboardPage() {
           summary,
           reports_to_stakeholder_id: superiorId,
           is_client_visible: isClientVisible,
-          client_sentiment: clientSentiment || null,
-          sentiment_trend: sentimentTrend || null,
         })
         .eq("id", editingId)
         .eq("user_id", user.id);
@@ -502,9 +500,7 @@ export default function DashboardPage() {
           reports_to_stakeholder_id: superiorId,
           is_external_superior: false,
           is_client_visible: isClientVisible,
-          client_sentiment: clientSentiment || null,
-          sentiment_trend: sentimentTrend || null,
-        },
+          },
       ]);
   
       if (error) {
