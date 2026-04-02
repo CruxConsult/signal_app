@@ -453,6 +453,7 @@ export default function DashboardPage() {
   
     if (!name || !role || !status) return;
   
+    // ✅ ensure session
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -462,11 +463,17 @@ export default function DashboardPage() {
       return;
     }
   
+    // ✅ define user ONCE at top-level scope
     const {
       data: { user },
     } = await supabase.auth.getUser();
   
-    const superiorId = await findOrCreateSuperior(reportsToName, user?.id || "");
+    if (!user) {
+      console.error("No user found");
+      return;
+    }
+  
+    const superiorId = await findOrCreateSuperior(reportsToName, user.id);
   
     if (editingId) {
       const { error } = await supabase
@@ -482,7 +489,7 @@ export default function DashboardPage() {
           sentiment_trend: sentimentTrend || null,
         })
         .eq("id", editingId)
-        .eq("user_id", user?.id);
+        .eq("user_id", user.id);
   
       if (error) {
         console.error("Update stakeholder error:", error);
@@ -495,7 +502,7 @@ export default function DashboardPage() {
           role,
           status,
           summary,
-          user_id: user?.id,
+          user_id: user.id, // ✅ NOW SAFE
           reports_to_stakeholder_id: superiorId,
           is_external_superior: false,
           is_client_visible: isClientVisible,
