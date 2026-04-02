@@ -11,7 +11,7 @@ export default function AppHeader({
 }) {
   return (
     <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 md:px-8">
         <Link
           href="/dashboard"
           className="inline-flex items-center transition hover:opacity-90"

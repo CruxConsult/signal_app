@@ -3,9 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Signal",
-    template: "%s · Signal",
+    default: "Crux",
+    template: "%s · Crux",
   },
+  description: "Stakeholder intelligence workspace",
   icons: {
     icon: "/icon.png",
     apple: "/icon.png",
@@ -14,9 +15,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body>{children}</body>
