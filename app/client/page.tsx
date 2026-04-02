@@ -30,7 +30,7 @@ function TrendPill({ trend }: { trend: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium ${tone}`}
+      className={`inline-flex min-w-[112px] items-center justify-center rounded-full border px-3 py-1.5 text-xs font-medium ${tone}`}
     >
       {trend}
     </span>
@@ -47,7 +47,7 @@ function SentimentPill({ sentiment }: { sentiment: string }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium ${tone}`}
+      className={`inline-flex min-w-[120px] items-center justify-center rounded-full border px-3 py-1.5 text-xs font-medium ${tone}`}
     >
       {sentiment}
     </span>
@@ -80,12 +80,38 @@ function normaliseSentiment(value: string | null | undefined) {
   return "neutral";
 }
 
+function getTrendTone(trend: string) {
+  if (trend === "↑ Improving") {
+    return {
+      line: "#059669",
+      dot: "#10B981",
+      baseline: "#D1FAE5",
+    };
+  }
+
+  if (trend === "↓ Declining") {
+    return {
+      line: "#DC2626",
+      dot: "#F43F5E",
+      baseline: "#FFE4E6",
+    };
+  }
+
+  return {
+    line: "#0C1E33",
+    dot: "#F4C430",
+    baseline: "#E2E8F0",
+  };
+}
+
 function Sparkline({
   stakeholderId,
   history,
+  trend,
 }: {
   stakeholderId: number;
   history: SentimentHistoryRow[];
+  trend: string;
 }) {
   const records = history
     .filter((row) => row.stakeholder_id === stakeholderId)
@@ -95,19 +121,24 @@ function Sparkline({
     )
     .slice(-6);
 
-  if (records.length < 2) return null;
+  if (records.length < 2) {
+    return (
+      <div className="flex h-10 w-[140px] items-center justify-end">
+        <div className="h-px w-full rounded-full bg-slate-200" />
+      </div>
+    );
+  }
 
   const map = {
-    negative: 32,
+    negative: 30,
     neutral: 20,
-    positive: 8,
+    positive: 10,
   };
 
   const points = records.map((row, index) => {
     const value = normaliseSentiment(row.stakeholder_sentiment);
-    const x = (index / Math.max(records.length - 1, 1)) * 100;
+    const x = 10 + (index / Math.max(records.length - 1, 1)) * 120;
     const y = map[value as keyof typeof map] ?? 20;
-
     return { x, y };
   });
 
@@ -116,22 +147,31 @@ function Sparkline({
     .join(" ");
 
   const latest = points[points.length - 1];
+  const colors = getTrendTone(trend);
 
   return (
     <svg
-      viewBox="0 0 100 40"
-      className="h-8 w-20"
+      viewBox="0 0 140 40"
+      className="h-10 w-[140px]"
       fill="none"
       aria-hidden="true"
     >
+      <line
+        x1="10"
+        y1="20"
+        x2="130"
+        y2="20"
+        stroke={colors.baseline}
+        strokeWidth="1.5"
+      />
       <path
         d={path}
-        stroke="#0C1E33"
-        strokeWidth="1.75"
+        stroke={colors.line}
+        strokeWidth="2.25"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx={latest.x} cy={latest.y} r="2.5" fill="#F4C430" />
+      <circle cx={latest.x} cy={latest.y} r="3.25" fill={colors.dot} />
     </svg>
   );
 }
@@ -335,37 +375,54 @@ export default function ClientDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-200/70">
-                {stakeholders.map((stakeholder) => {
-                  const sentiment = getSentimentLabel(stakeholder);
-                  const trend = getTrend(stakeholder.id);
+              <>
+                <div className="hidden grid-cols-[minmax(220px,1.5fr)_160px_160px_140px] gap-6 border-b border-slate-200/70 px-6 py-3 text-xs font-medium uppercase tracking-[0.08em] text-slate-400 md:grid md:px-8">
+                  <div>Stakeholder</div>
+                  <div>Sentiment</div>
+                  <div>Trend</div>
+                  <div className="text-right">History</div>
+                </div>
 
-                  return (
-                    <div
-                      key={stakeholder.id}
-                      className="grid gap-4 px-6 py-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center md:px-8"
-                    >
-                      <div>
-                        <p className="text-[16px] font-semibold text-slate-900">
-                          {stakeholder.name}
-                        </p>
-                      </div>
+                <div className="divide-y divide-slate-200/70">
+                  {stakeholders.map((stakeholder) => {
+                    const sentiment = getSentimentLabel(stakeholder);
+                    const trend = getTrend(stakeholder.id);
 
-                      <div className="flex items-center">
-                        <SentimentPill sentiment={sentiment} />
-                      </div>
+                    return (
+                      <div
+                        key={stakeholder.id}
+                        className="grid gap-4 px-6 py-5 md:grid-cols-[minmax(220px,1.5fr)_160px_160px_140px] md:items-center md:gap-6 md:px-8"
+                      >
+                        <div>
+                          <p className="text-[18px] font-semibold tracking-[-0.02em] text-slate-900">
+                            {stakeholder.name}
+                          </p>
+                        </div>
 
-                      <div className="flex items-center">
-                        <TrendPill trend={trend} />
-                      </div>
+                        <div className="flex items-center justify-start">
+                          <div className="shrink-0">
+                            <SentimentPill sentiment={sentiment} />
+                          </div>
+                        </div>
 
-                      <div className="flex items-center justify-start md:justify-end">
-                        <Sparkline stakeholderId={stakeholder.id} history={history} />
+                        <div className="flex items-center justify-start">
+                          <div className="shrink-0">
+                            <TrendPill trend={trend} />
+                          </div>
+                        </div>
+
+                        <div className="flex w-[140px] items-center justify-start md:justify-end">
+                          <Sparkline
+                            stakeholderId={stakeholder.id}
+                            history={history}
+                            trend={trend}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         </div>
