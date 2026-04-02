@@ -412,24 +412,35 @@ export default function DashboardPage() {
   ): Promise<number | null> {
     const trimmed = superiorName.trim();
     if (!trimmed) return null;
-
+  
     const existing = stakeholders.find(
       (s) => s.name.toLowerCase().trim() === trimmed.toLowerCase()
     );
-
+  
     if (existing) {
       return existing.id;
     }
-
-    const { data, error } = 
+  
+    const { data, error } = await supabase
+      .from("Stakeholders")
+      .insert([
+        {
+          name: trimmed,
+          role: "Superior",
+          status: "neutral",
+          summary: "Auto-created reporting-line record",
+          user_id: userId,
+          is_external_superior: true,
+        },
+      ])
       .select()
       .single();
-
+  
     if (error) {
       console.error("Create superior error:", error);
       return null;
     }
-
+  
     return data.id;
   }
 
