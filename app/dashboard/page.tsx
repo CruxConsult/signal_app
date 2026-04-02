@@ -62,7 +62,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [selectedStakeholderId, setSelectedStakeholderId] = useState<number | null>(null);
+  const [selectedStakeholderId, setSelectedStakeholderId] = useState<number | null>(
+    null
+  );
 
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
@@ -256,9 +258,10 @@ export default function DashboardPage() {
 
   const selectedSuperior = useMemo(() => {
     if (!selectedStakeholder?.reports_to_stakeholder_id) return null;
-    return stakeholders.find(
-      (s) => s.id === selectedStakeholder.reports_to_stakeholder_id
-    ) || null;
+    return (
+      stakeholders.find((s) => s.id === selectedStakeholder.reports_to_stakeholder_id) ||
+      null
+    );
   }, [stakeholders, selectedStakeholder]);
 
   const selectedArrow = useMemo(() => {
@@ -508,12 +511,12 @@ export default function DashboardPage() {
       <main className="min-h-screen bg-[linear-gradient(to_bottom,#f8fafc,#eef2f7)] px-6 py-10 md:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            
             <h1 className="text-4xl font-semibold tracking-[-0.03em] text-slate-900">
               Stakeholder workspace
             </h1>
             <p className="mt-2 text-[15px] text-slate-500">
-              Stakeholders are positioned by sentiment. Use the list below to show a reporting line.
+              Stakeholders are positioned by sentiment. Use the list below to show
+              a reporting line.
             </p>
           </div>
 
@@ -603,7 +606,7 @@ export default function DashboardPage() {
                       "no sentiment"
                     } • ${stakeholder.interactionCount} interaction(s)`}
                   >
-                    <span className="flex items-center gap-2 text-sm font-medium leading-tight whitespace-nowrap">
+                    <span className="flex items-center gap-2 whitespace-nowrap text-sm font-medium leading-tight">
                       <PersonIcon />
                       <span className="truncate">{stakeholder.name}</span>
                     </span>
@@ -699,8 +702,8 @@ export default function DashboardPage() {
                             : "border-slate-200/60 bg-white/70"
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div className="min-w-0">
                             <p className="font-semibold text-slate-900">
                               {stakeholder.name}
                             </p>
@@ -715,7 +718,7 @@ export default function DashboardPage() {
                             </p>
                           </div>
 
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex shrink-0 flex-col items-end gap-2">
                             <button
                               type="button"
                               onClick={() =>
@@ -723,21 +726,21 @@ export default function DashboardPage() {
                                   current === stakeholder.id ? null : stakeholder.id
                                 )
                               }
-                              className="rounded-full border border-slate-200 bg-white/80 px-3.5 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                              className="min-w-[140px] rounded-2xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-200"
                             >
                               {isSelected ? "Hide line" : "Show line"}
                             </button>
                             <button
                               type="button"
                               onClick={() => handleEditClick(stakeholder)}
-                              className="rounded-full border border-slate-200 bg-white/80 px-3.5 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                              className="min-w-[140px] rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
                             >
                               Edit
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteStakeholder(stakeholder)}
-                              className="rounded-full border border-rose-200 bg-rose-50/90 px-3.5 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100/90"
+                              className="min-w-[140px] rounded-2xl bg-rose-100 px-4 py-2 text-sm font-medium text-rose-700 shadow-sm transition hover:bg-rose-200"
                             >
                               Delete
                             </button>
@@ -807,7 +810,8 @@ export default function DashboardPage() {
                     placeholder="Type superior’s name"
                   />
                   <p className="mt-2 text-xs leading-5 text-slate-500">
-                    If this person does not already exist, a superior record will be created automatically.
+                    If this person does not already exist, a superior record will be
+                    created automatically.
                   </p>
                 </div>
 
@@ -823,10 +827,10 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col items-end gap-2">
                   <button
                     type="submit"
-                    className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-[0_6px_18px_rgba(15,23,42,0.16)] transition hover:bg-slate-700"
+                    className="min-w-[140px] rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
                   >
                     {editingId ? "Update stakeholder" : "Add stakeholder"}
                   </button>
@@ -835,7 +839,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="rounded-full border border-slate-200 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                      className="min-w-[140px] rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-200"
                     >
                       Cancel
                     </button>
