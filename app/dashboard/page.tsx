@@ -421,22 +421,7 @@ export default function DashboardPage() {
       return existing.id;
     }
 
-    const { data, error } = await supabase
-      .from("Stakeholders")
-      .insert([
-        {
-          name,
-          role,
-          status,
-          summary,
-          user_id: user.id,
-          reports_to_stakeholder_id: superiorId,
-          is_external_superior: false,
-          is_client_visible: isClientVisible,
-          client_sentiment: clientSentiment || null,
-          sentiment_trend: sentimentTrend || null,
-        }
-      ])
+    const { data, error } = 
       .select()
       .single();
 
