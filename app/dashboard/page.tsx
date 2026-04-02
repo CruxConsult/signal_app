@@ -19,6 +19,9 @@ type Stakeholder = {
   is_external_superior?: boolean | null;
   manual_x?: number | null;
   manual_y?: number | null;
+  is_client_visible?: boolean | null;
+  client_sentiment?: string | null;
+  sentiment_trend?: string | null;
 };
 
 type Interaction = {
@@ -71,6 +74,9 @@ export default function DashboardPage() {
   const [status, setStatus] = useState("");
   const [summary, setSummary] = useState("");
   const [reportsToName, setReportsToName] = useState("");
+  const [isClientVisible, setIsClientVisible] = useState(false);
+  const [clientSentiment, setClientSentiment] = useState("");
+  const [sentimentTrend, setSentimentTrend] = useState("");
 
   async function loadData() {
     const {
@@ -316,6 +322,9 @@ export default function DashboardPage() {
     setStatus("");
     setSummary("");
     setReportsToName("");
+    setIsClientVisible(false);
+    setClientSentiment("");
+    setSentimentTrend("");
   }
 
   function handleEditClick(stakeholder: Stakeholder) {
@@ -324,6 +333,9 @@ export default function DashboardPage() {
     setRole(stakeholder.role);
     setStatus(stakeholder.status);
     setSummary(stakeholder.summary || "");
+    setIsClientVisible(!!stakeholder.is_client_visible);
+    setClientSentiment(stakeholder.client_sentiment || "");
+    setSentimentTrend(stakeholder.sentiment_trend || "");
 
     const superior = stakeholders.find(
       (s) => s.id === stakeholder.reports_to_stakeholder_id
@@ -413,13 +425,17 @@ export default function DashboardPage() {
       .from("Stakeholders")
       .insert([
         {
-          name: trimmed,
-          role: "Superior",
-          status: "neutral",
-          summary: "Auto-created reporting-line record",
-          user_id: userId,
-          is_external_superior: true,
-        },
+          name,
+          role,
+          status,
+          summary,
+          user_id: user?.id,
+          reports_to_stakeholder_id: superiorId,
+          is_external_superior: false,
+          is_client_visible: isClientVisible,
+          client_sentiment: clientSentiment || null,
+          sentiment_trend: sentimentTrend || null,
+        }
       ])
       .select()
       .single();
@@ -470,17 +486,20 @@ export default function DashboardPage() {
         return;
       }
     } else {
-      const { error } = await supabase.from("Stakeholders").insert([
-        {
-          name,
-          role,
-          status,
-          summary,
-          user_id: user?.id,
-          reports_to_stakeholder_id: superiorId,
-          is_external_superior: false,
-        },
-      ]);
+      const { error } = await supabase
+  .from("Stakeholders")
+  .update({
+    name,
+    role,
+    status,
+    summary,
+    reports_to_stakeholder_id: superiorId,
+    is_client_visible: isClientVisible,
+    client_sentiment: clientSentiment || null,
+    sentiment_trend: sentimentTrend || null,
+  })
+  .eq("id", editingId)
+  .eq("user_id", user?.id);
 
       if (error) {
         console.error("Add stakeholder error:", error);
@@ -814,7 +833,52 @@ export default function DashboardPage() {
                     created automatically.
                   </p>
                 </div>
+                <div>
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Client visibility
+  </label>
+  <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900">
+    <input
+      type="checkbox"
+      checked={isClientVisible}
+      onChange={(e) => setIsClientVisible(e.target.checked)}
+      className="h-4 w-4 rounded border-slate-300"
+    />
+    Include this stakeholder in client view
+  </label>
+</div>
 
+<div>
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Client sentiment
+  </label>
+  <select
+    value={clientSentiment}
+    onChange={(e) => setClientSentiment(e.target.value)}
+    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900 outline-none transition focus:border-slate-300"
+  >
+    <option value="">Select sentiment</option>
+    <option value="Supportive">Supportive</option>
+    <option value="Neutral">Neutral</option>
+    <option value="Needs attention">Needs attention</option>
+  </select>
+</div>
+
+<div>
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Sentiment trend
+  </label>
+  <select
+    value={sentimentTrend}
+    onChange={(e) => setSentimentTrend(e.target.value)}
+    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900 outline-none transition focus:border-slate-300"
+  >
+    <option value="">Select trend</option>
+    <option value="Improving">Improving</option>
+    <option value="Stable">Stable</option>
+    <option value="Declining">Declining</option>
+  </select>
+</div>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Summary
