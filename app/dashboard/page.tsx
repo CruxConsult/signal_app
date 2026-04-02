@@ -20,8 +20,6 @@ type Stakeholder = {
   manual_x?: number | null;
   manual_y?: number | null;
   is_client_visible?: boolean | null;
-  client_sentiment?: string | null;
-  sentiment_trend?: string | null;
 };
 
 type Interaction = {
@@ -75,8 +73,6 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState("");
   const [reportsToName, setReportsToName] = useState("");
   const [isClientVisible, setIsClientVisible] = useState(false);
-  const [clientSentiment, setClientSentiment] = useState("");
-  const [sentimentTrend, setSentimentTrend] = useState("");
 
   async function loadData() {
     const {
@@ -323,8 +319,6 @@ export default function DashboardPage() {
     setSummary("");
     setReportsToName("");
     setIsClientVisible(false);
-    setClientSentiment("");
-    setSentimentTrend("");
   }
 
   function handleEditClick(stakeholder: Stakeholder) {
@@ -334,8 +328,6 @@ export default function DashboardPage() {
     setStatus(stakeholder.status);
     setSummary(stakeholder.summary || "");
     setIsClientVisible(!!stakeholder.is_client_visible);
-    setClientSentiment(stakeholder.client_sentiment || "");
-    setSentimentTrend(stakeholder.sentiment_trend || "");
 
     const superior = stakeholders.find(
       (s) => s.id === stakeholder.reports_to_stakeholder_id
@@ -412,15 +404,15 @@ export default function DashboardPage() {
   ): Promise<number | null> {
     const trimmed = superiorName.trim();
     if (!trimmed) return null;
-  
+
     const existing = stakeholders.find(
       (s) => s.name.toLowerCase().trim() === trimmed.toLowerCase()
     );
-  
+
     if (existing) {
       return existing.id;
     }
-  
+
     const { data, error } = await supabase
       .from("Stakeholders")
       .insert([
@@ -435,42 +427,40 @@ export default function DashboardPage() {
       ])
       .select()
       .single();
-  
+
     if (error) {
       console.error("Create superior error:", error);
       return null;
     }
-  
+
     return data.id;
   }
 
   async function handleAddOrUpdateStakeholder(e: React.FormEvent) {
     e.preventDefault();
-  
+
     if (!name || !role || !status) return;
-  
-    // ✅ ensure session
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
-  
+
     if (!session) {
       router.push("/login");
       return;
     }
-  
-    // ✅ define user ONCE at top-level scope
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
-  
+
     if (!user) {
       console.error("No user found");
       return;
     }
-  
+
     const superiorId = await findOrCreateSuperior(reportsToName, user.id);
-  
+
     if (editingId) {
       const { error } = await supabase
         .from("Stakeholders")
@@ -484,7 +474,7 @@ export default function DashboardPage() {
         })
         .eq("id", editingId)
         .eq("user_id", user.id);
-  
+
       if (error) {
         console.error("Update stakeholder error:", error);
         return;
@@ -496,19 +486,19 @@ export default function DashboardPage() {
           role,
           status,
           summary,
-          user_id: user.id, // ✅ NOW SAFE
+          user_id: user.id,
           reports_to_stakeholder_id: superiorId,
           is_external_superior: false,
           is_client_visible: isClientVisible,
-          },
+        },
       ]);
-  
+
       if (error) {
         console.error("Add stakeholder error:", error);
         return;
       }
     }
-  
+
     resetForm();
     await loadData();
   }
@@ -725,9 +715,17 @@ export default function DashboardPage() {
                       >
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div className="min-w-0">
-                            <p className="font-semibold text-slate-900">
-                              {stakeholder.name}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="font-semibold text-slate-900">
+                                {stakeholder.name}
+                              </p>
+                              {stakeholder.is_client_visible && (
+                                <span className="rounded-full bg-[#F4C430] px-2.5 py-1 text-xs font-medium text-[#0C1E33]">
+                                  Client
+                                </span>
+                              )}
+                            </div>
+
                             <p className="mt-1 text-[15px] text-slate-600">
                               {stakeholder.role}
                             </p>
@@ -835,52 +833,22 @@ export default function DashboardPage() {
                     created automatically.
                   </p>
                 </div>
+
                 <div>
-  <label className="mb-2 block text-sm font-medium text-slate-700">
-    Client visibility
-  </label>
-  <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900">
-    <input
-      type="checkbox"
-      checked={isClientVisible}
-      onChange={(e) => setIsClientVisible(e.target.checked)}
-      className="h-4 w-4 rounded border-slate-300"
-    />
-    Include this stakeholder in client view
-  </label>
-</div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Client visibility
+                  </label>
+                  <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900">
+                    <input
+                      type="checkbox"
+                      checked={isClientVisible}
+                      onChange={(e) => setIsClientVisible(e.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300"
+                    />
+                    Include this stakeholder in client view
+                  </label>
+                </div>
 
-<div>
-  <label className="mb-2 block text-sm font-medium text-slate-700">
-    Client sentiment
-  </label>
-  <select
-    value={clientSentiment}
-    onChange={(e) => setClientSentiment(e.target.value)}
-    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900 outline-none transition focus:border-slate-300"
-  >
-    <option value="">Select sentiment</option>
-    <option value="Supportive">Supportive</option>
-    <option value="Neutral">Neutral</option>
-    <option value="Needs attention">Needs attention</option>
-  </select>
-</div>
-
-<div>
-  <label className="mb-2 block text-sm font-medium text-slate-700">
-    Sentiment trend
-  </label>
-  <select
-    value={sentimentTrend}
-    onChange={(e) => setSentimentTrend(e.target.value)}
-    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-[15px] text-slate-900 outline-none transition focus:border-slate-300"
-  >
-    <option value="">Select trend</option>
-    <option value="Improving">Improving</option>
-    <option value="Stable">Stable</option>
-    <option value="Declining">Declining</option>
-  </select>
-</div>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Summary
