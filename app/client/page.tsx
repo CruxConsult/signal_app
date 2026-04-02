@@ -54,6 +54,88 @@ function SentimentPill({ sentiment }: { sentiment: string }) {
   );
 }
 
+function normaliseSentiment(value: string | null | undefined) {
+  const source = (value || "").toLowerCase().trim();
+
+  if (
+    source.includes("positive") ||
+    source.includes("supportive") ||
+    source.includes("champion") ||
+    source.includes("engaged") ||
+    source.includes("warming")
+  ) {
+    return "positive";
+  }
+
+  if (
+    source.includes("negative") ||
+    source.includes("resistant") ||
+    source.includes("opposed") ||
+    source.includes("blocker") ||
+    source.includes("hostile")
+  ) {
+    return "negative";
+  }
+
+  return "neutral";
+}
+
+function Sparkline({
+  stakeholderId,
+  history,
+}: {
+  stakeholderId: number;
+  history: SentimentHistoryRow[];
+}) {
+  const records = history
+    .filter((row) => row.stakeholder_id === stakeholderId)
+    .sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )
+    .slice(-6);
+
+  if (records.length < 2) return null;
+
+  const map = {
+    negative: 32,
+    neutral: 20,
+    positive: 8,
+  };
+
+  const points = records.map((row, index) => {
+    const value = normaliseSentiment(row.stakeholder_sentiment);
+    const x = (index / Math.max(records.length - 1, 1)) * 100;
+    const y = map[value as keyof typeof map] ?? 20;
+
+    return { x, y };
+  });
+
+  const path = points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
+    .join(" ");
+
+  const latest = points[points.length - 1];
+
+  return (
+    <svg
+      viewBox="0 0 100 40"
+      className="h-8 w-20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d={path}
+        stroke="#0C1E33"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx={latest.x} cy={latest.y} r="2.5" fill="#F4C430" />
+    </svg>
+  );
+}
+
 export default function ClientDashboardPage() {
   const supabase = createClient();
 
@@ -138,32 +220,6 @@ export default function ClientDashboardPage() {
     return "Neutral";
   }
 
-  function normaliseSentiment(value: string | null | undefined) {
-    const source = (value || "").toLowerCase().trim();
-
-    if (
-      source.includes("positive") ||
-      source.includes("supportive") ||
-      source.includes("champion") ||
-      source.includes("engaged") ||
-      source.includes("warming")
-    ) {
-      return "positive";
-    }
-
-    if (
-      source.includes("negative") ||
-      source.includes("resistant") ||
-      source.includes("opposed") ||
-      source.includes("blocker") ||
-      source.includes("hostile")
-    ) {
-      return "negative";
-    }
-
-    return "neutral";
-  }
-
   function getTrend(stakeholderId: number) {
     const records = history
       .filter((row) => row.stakeholder_id === stakeholderId)
@@ -176,45 +232,34 @@ export default function ClientDashboardPage() {
       return "→ Stable";
     }
 
-    const previous = normaliseSentiment(
-      records[records.length - 2].stakeholder_sentiment
-    );
-    const latest = normaliseSentiment(
-      records[records.length - 1].stakeholder_sentiment
+    const recent = records.slice(-3).map((row) =>
+      normaliseSentiment(row.stakeholder_sentiment)
     );
 
-    if (latest === previous) {
-      return "→ Stable";
-    }
+    const scoreMap = {
+      negative: -1,
+      neutral: 0,
+      positive: 1,
+    };
 
-    if (
-      (previous === "negative" && latest === "neutral") ||
-      (previous === "neutral" && latest === "positive") ||
-      (previous === "negative" && latest === "positive")
-    ) {
-      return "↑ Improving";
-    }
+    const scores = recent.map((value) => scoreMap[value as keyof typeof scoreMap]);
+    const delta = scores[scores.length - 1] - scores[0];
 
-    if (
-      (previous === "positive" && latest === "neutral") ||
-      (previous === "neutral" && latest === "negative") ||
-      (previous === "positive" && latest === "negative")
-    ) {
-      return "↓ Declining";
-    }
+    if (delta > 0) return "↑ Improving";
+    if (delta < 0) return "↓ Declining";
 
     return "→ Stable";
   }
 
   const summary = useMemo(() => {
     const supportive = stakeholders.filter(
-      (s) => getSentimentLabel(s) === "Supportive"
+      (stakeholder) => getSentimentLabel(stakeholder) === "Supportive"
     ).length;
     const neutral = stakeholders.filter(
-      (s) => getSentimentLabel(s) === "Neutral"
+      (stakeholder) => getSentimentLabel(stakeholder) === "Neutral"
     ).length;
     const attention = stakeholders.filter(
-      (s) => getSentimentLabel(s) === "Needs attention"
+      (stakeholder) => getSentimentLabel(stakeholder) === "Needs attention"
     ).length;
 
     return { supportive, neutral, attention };
@@ -298,7 +343,7 @@ export default function ClientDashboardPage() {
                   return (
                     <div
                       key={stakeholder.id}
-                      className="grid gap-4 px-6 py-5 md:grid-cols-[1.5fr_1fr_1fr] md:items-center md:px-8"
+                      className="grid gap-4 px-6 py-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center md:px-8"
                     >
                       <div>
                         <p className="text-[16px] font-semibold text-slate-900">
@@ -312,6 +357,10 @@ export default function ClientDashboardPage() {
 
                       <div className="flex items-center">
                         <TrendPill trend={trend} />
+                      </div>
+
+                      <div className="flex items-center justify-start md:justify-end">
+                        <Sparkline stakeholderId={stakeholder.id} history={history} />
                       </div>
                     </div>
                   );
